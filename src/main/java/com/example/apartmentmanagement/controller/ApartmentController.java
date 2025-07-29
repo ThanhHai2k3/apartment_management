@@ -11,9 +11,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/apartments")
-@RequiredArgsConstructor
+
 public class ApartmentController {
     private final ApartmentService apartmentService;
+
+    public ApartmentController(ApartmentService apartmentService) {
+        this.apartmentService = apartmentService;
+    }
 
     @PostMapping
     public ResponseEntity<ApartmentResponse> createApartment(@RequestBody ApartmentRequest request){
