@@ -5,7 +5,6 @@ import com.example.apartmentmanagement.dto.response.ApartmentResponse;
 import com.example.apartmentmanagement.entity.Apartment;
 import com.example.apartmentmanagement.repository.ApartmentRepository;
 import com.example.apartmentmanagement.service.ApartmentService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -10,6 +10,7 @@ import com.example.apartmentmanagement.repository.RoleRepository;
 import com.example.apartmentmanagement.repository.UserRepository;
 import com.example.apartmentmanagement.service.AuthService;
 import com.example.apartmentmanagement.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepo;
@@ -26,25 +28,25 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    @Autowired
-    public AuthServiceImpl(UserRepository userRepo, RoleRepository roleRepo,
-                           PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepo = userRepo;
-        this.roleRepo = roleRepo;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+//    @Autowired
+//    public AuthServiceImpl(UserRepository userRepo, RoleRepository roleRepo,
+//                           PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+//        this.userRepo = userRepo;
+//        this.roleRepo = roleRepo;
+//        this.passwordEncoder = passwordEncoder;
+//        this.jwtUtil = jwtUtil;
+//    }
 
     @Override
     public void register(RegisterRequest req) {
-        if (userRepo.existsByUsername(req.username)) {
+        if (userRepo.existsByUsername(req.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
 
         User user = new User();
-        user.setUsername(req.username);
-        user.setEmail(req.email);
-        user.setPassword(passwordEncoder.encode(req.password));
+        user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
 
         Role userRole = roleRepo.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
@@ -55,10 +57,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse login(LoginRequest req) {
-        User user = userRepo.findByUsername(req.username)
+        User user = userRepo.findByUsername(req.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
-        if (!passwordEncoder.matches(req.password, user.getPassword())) {
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
 
