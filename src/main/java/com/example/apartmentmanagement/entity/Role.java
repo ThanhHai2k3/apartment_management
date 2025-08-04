@@ -2,8 +2,12 @@ package com.example.apartmentmanagement.entity;
 
 import com.example.apartmentmanagement.enums.RoleName;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "roles")
 public class Role {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,21 +16,5 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(unique = true)
     private RoleName name;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public RoleName getName() {
-        return name;
-    }
-
-    public void setName(RoleName name) {
-        this.name = name;
-    }
 }
 

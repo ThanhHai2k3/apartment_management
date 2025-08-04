@@ -4,6 +4,7 @@ import com.example.apartmentmanagement.dto.request.LoginRequest;
 import com.example.apartmentmanagement.dto.request.RegisterRequest;
 import com.example.apartmentmanagement.dto.response.JwtResponse;
 import com.example.apartmentmanagement.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    //@Autowired
     private final AuthService authService;
-
-    public AuthController(AuthService authService){
-        this.authService = authService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {

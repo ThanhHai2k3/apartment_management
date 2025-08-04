@@ -3,6 +3,7 @@ package com.example.apartmentmanagement.controller;
 import com.example.apartmentmanagement.dto.request.ApartmentRequest;
 import com.example.apartmentmanagement.dto.response.ApartmentResponse;
 import com.example.apartmentmanagement.service.ApartmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,13 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/apartments")
-
+@RequiredArgsConstructor
 public class ApartmentController {
     private final ApartmentService apartmentService;
-
-    public ApartmentController(ApartmentService apartmentService) {
-        this.apartmentService = apartmentService;
-    }
 
     @PostMapping
     public ResponseEntity<ApartmentResponse> createApartment(@RequestBody ApartmentRequest request){
