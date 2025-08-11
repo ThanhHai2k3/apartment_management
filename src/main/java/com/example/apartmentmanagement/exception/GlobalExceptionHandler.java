@@ -10,22 +10,25 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = AppException.class)
-    ResponseEntity<ErrorResponse> handlingUnwantedException(AppException exception){
+    ResponseEntity<ErrorResponse> handleAppException(AppException exception){
         ErrorCode errorCode = exception.getErrorCode();
         ErrorResponse errorResponse = new ErrorResponse();
 
         errorResponse.setCode(errorCode.getCode());
         errorResponse.setMessage(errorCode.getMessage());
 
-        return ResponseEntity.badRequest().body(errorResponse);
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
     }
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ErrorResponse> handlingException(Exception exception){
-        ErrorResponse errorResponse = new ErrorResponse();
+    ResponseEntity<ErrorResponse> handleGeneralException(Exception exception){
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
-        errorResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        errorResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-        return ResponseEntity.badRequest().body(errorResponse);
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
+
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
     }
 }
