@@ -13,7 +13,9 @@ public enum ErrorCode {
     ACCESS_DENIED(1004, "Access denied", HttpStatus.FORBIDDEN),
     DATA_NOT_FOUND(1005, "Data not found", HttpStatus.NOT_FOUND),
     USERNAME_INVALID (1006, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID (1007, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST)
+    PASSWORD_INVALID (1007, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
+    APARTMENT_NOT_FOUND(1008, "Apartment not found", HttpStatus.NOT_FOUND),
+    RESIDENT_NOT_FOUND(1009, "Resident not found", HttpStatus.NOT_FOUND)
     ;
 
     private final int code;
