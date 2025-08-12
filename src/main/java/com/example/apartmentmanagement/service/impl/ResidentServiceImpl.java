@@ -6,6 +6,7 @@ import com.example.apartmentmanagement.entity.Apartment;
 import com.example.apartmentmanagement.entity.Resident;
 import com.example.apartmentmanagement.enums.ErrorCode;
 import com.example.apartmentmanagement.exception.AppException;
+import com.example.apartmentmanagement.mapper.ResidentMapper;
 import com.example.apartmentmanagement.repository.ApartmentRepository;
 import com.example.apartmentmanagement.repository.ResidentRepository;
 import com.example.apartmentmanagement.service.ResidentService;
@@ -20,24 +21,18 @@ import java.util.stream.Collectors;
 public class ResidentServiceImpl implements ResidentService {
     private final ResidentRepository residentRepository;
     private final ApartmentRepository apartmentRepository;
+    private final ResidentMapper residentMapper;
 
     @Override
     public ResidentResponse createResident (ResidentRequest request){
-        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-                .orElseThrow(() -> new AppException(ErrorCode.DATA_NOT_FOUND));
+        // Chỉ cần validate xem apartment toonf tại hay không vì set apartment có trong MapStruct rồi
+        apartmentRepository.findById(request.getApartmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
-        Resident resident = new Resident();
-        resident.setFullName(request.getFullName());
-        resident.setEmail(request.getEmail());
-        resident.setPhoneNum(request.getPhoneNum());
-        resident.setGender(request.getGender());
-        resident.setIdNumber(request.getIdNumber());
-        resident.setDob(request.getDob());
-        resident.setApartment(apartment);
-
+        Resident resident = residentMapper.toResident(request);
         Resident savedResident = residentRepository.save(resident);
 
-        return mapToResponseDTO(savedResident);
+        return residentMapper.toResidentResponse(savedResident);
     }
 
     @Override
@@ -45,24 +40,18 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
+        apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
-        resident.setFullName(request.getFullName());
-        resident.setEmail(request.getEmail());
-        resident.setPhoneNum(request.getPhoneNum());
-        resident.setGender(request.getGender());
-        resident.setIdNumber(request.getIdNumber());
-        resident.setDob(request.getDob());
-        resident.setApartment(apartment);
-
+        residentMapper.updateResident(resident, request);
         Resident updatedResident = residentRepository.save(resident);
-        return mapToResponseDTO(updatedResident);
+
+        return residentMapper.toResidentResponse(updatedResident);
     }
 
     @Override
     public void deleteResident(Long id){
-        Resident resident = residentRepository.findById(id)
+        residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
         residentRepository.deleteById(id);
@@ -73,30 +62,14 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-        return mapToResponseDTO(resident);
+        return residentMapper.toResidentResponse(resident);
     }
 
     @Override
     public List<ResidentResponse> getAllResidents(){
         return residentRepository.findAll()
                 .stream()
-                .map(this::mapToResponseDTO)
+                .map(residentMapper::toResidentResponse)
                 .collect(Collectors.toList());
-    }
-
-    private ResidentResponse mapToResponseDTO(Resident resident) {
-        ResidentResponse dto = new ResidentResponse();
-        dto.setId(resident.getId());
-        dto.setFullName(resident.getFullName());
-        dto.setEmail(resident.getEmail());
-        dto.setPhoneNum(resident.getPhoneNum());
-        dto.setGender(resident.getGender());
-        dto.setIdNumber(resident.getIdNumber());
-        dto.setDob(resident.getDob());
-        dto.setMoveInDate(resident.getMoveInDate());
-        dto.setMoveOutDate(resident.getMoveOutDate());
-        dto.setApartmentId(resident.getApartment().getId());
-        dto.setApartmentNumber(resident.getApartment().getNumber());
-        return dto;
     }
 }
