@@ -11,4 +11,5 @@ public interface ResidentService {
     void deleteResident (Long id);
     ResidentResponse getResidentById (Long id);
     List<ResidentResponse> getAllResidents();
+    List<ResidentResponse> getResidentsByApartment(Long apartmentId);
 }

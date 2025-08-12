@@ -25,11 +25,12 @@ public class ResidentServiceImpl implements ResidentService {
 
     @Override
     public ResidentResponse createResident (ResidentRequest request){
-        // Chỉ cần validate xem apartment toonf tại hay không vì set apartment có trong MapStruct rồi
-        apartmentRepository.findById(request.getApartmentId())
+        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
         Resident resident = residentMapper.toResident(request);
+        //Gán lại apartment thật (đảm bảo không bị entity giả)
+        resident.setApartment(apartment);
         Resident savedResident = residentRepository.save(resident);
 
         return residentMapper.toResidentResponse(savedResident);
@@ -40,10 +41,12 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-        apartmentRepository.findById(request.getApartmentId())
+        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
         residentMapper.updateResident(resident, request);
+        //Gán lại apartment thật (đảm bảo không bị entity giả)
+        resident.setApartment(apartment);
         Resident updatedResident = residentRepository.save(resident);
 
         return residentMapper.toResidentResponse(updatedResident);
@@ -71,5 +74,13 @@ public class ResidentServiceImpl implements ResidentService {
                 .stream()
                 .map(residentMapper::toResidentResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ResidentResponse> getResidentsByApartment(Long apartmentId){
+        List<Resident> residents = residentRepository.findByApartmentId(apartmentId);
+        return residents.stream()
+                .map(residentMapper::toResidentResponse)
+                .toList();
     }
 }

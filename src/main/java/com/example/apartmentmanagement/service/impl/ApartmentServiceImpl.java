@@ -3,6 +3,9 @@ package com.example.apartmentmanagement.service.impl;
 import com.example.apartmentmanagement.dto.request.ApartmentRequest;
 import com.example.apartmentmanagement.dto.response.ApartmentResponse;
 import com.example.apartmentmanagement.entity.Apartment;
+import com.example.apartmentmanagement.enums.ErrorCode;
+import com.example.apartmentmanagement.exception.AppException;
+import com.example.apartmentmanagement.mapper.ApartmentMapper;
 import com.example.apartmentmanagement.repository.ApartmentRepository;
 import com.example.apartmentmanagement.service.ApartmentService;
 import lombok.RequiredArgsConstructor;
@@ -15,74 +18,46 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ApartmentServiceImpl implements ApartmentService {
     private final ApartmentRepository apartmentRepository;
+    private final ApartmentMapper apartmentMapper;
 
     @Override
     public ApartmentResponse createApartment(ApartmentRequest request){
-        Apartment apartment = mapToEntity(request);
-        Apartment saved = apartmentRepository.save(apartment);
-        return mapToResponse(saved);
-    }
-
-    private Apartment mapToEntity(ApartmentRequest request){
-        Apartment apartment = new Apartment();
-        apartment.setBuilding(request.getBuilding());
-        apartment.setNumber(request.getNumber());
-        apartment.setFloor(request.getFloor());
-        apartment.setArea(request.getArea());
-        apartment.setCapacity(request.getCapacity());
-        apartment.setStatus(request.getStatus());
-
-        return apartment;
-    }
-
-    private ApartmentResponse mapToResponse(Apartment apartment){
-        ApartmentResponse apartmentResponse = new ApartmentResponse();
-        apartmentResponse.setId(apartment.getId());
-        apartmentResponse.setBuilding(apartment.getBuilding());
-        apartmentResponse.setNumber(apartment.getNumber());
-        apartmentResponse.setFloor(apartment.getFloor());
-        apartmentResponse.setArea(apartment.getArea());
-        apartmentResponse.setCapacity(apartment.getCapacity());
-        apartmentResponse.setStatus(apartment.getStatus());
-        apartmentResponse.setCreatedAt(apartment.getCreatedAt());
-        apartmentResponse.setUpdatedAt(apartment.getUpdatedAt());
-
-        return apartmentResponse;
+        Apartment apartment = apartmentMapper.toApartment(request);
+        Apartment savedApartment = apartmentRepository.save(apartment);
+        return apartmentMapper.toApartmentResponse(savedApartment);
     }
 
     @Override
     public ApartmentResponse updateApartment(Long id, ApartmentRequest request){
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Apartment not found with Id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
-        apartment.setBuilding(request.getBuilding());
-        apartment.setNumber(request.getNumber());
-        apartment.setFloor(request.getFloor());
-        apartment.setArea(request.getArea());
-        apartment.setCapacity(request.getCapacity());
-        apartment.setStatus(request.getStatus());
+        apartmentMapper.updateApartment(apartment, request);
+        Apartment updatedApartment = apartmentRepository.save(apartment);
 
-        Apartment updated = apartmentRepository.save(apartment);
-        return mapToResponse(updated);
+        return apartmentMapper.toApartmentResponse(updatedApartment);
     }
 
     @Override
     public ApartmentResponse getApartmentById(Long id){
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Apartment not found with Id: " + id));
-        return mapToResponse(apartment);
+                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
+        return apartmentMapper.toApartmentResponse(apartment);
     }
 
     @Override
     public List<ApartmentResponse> getAllApartments(){
         List<ApartmentResponse> list = apartmentRepository.findAll()
-                .stream().map(this::mapToResponse)
+                .stream().map(apartmentMapper::toApartmentResponse)
                 .collect(Collectors.toList());
         return list;
     }
 
     @Override
     public void deleteApartment(Long id){
+        apartmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
+
         apartmentRepository.deleteById(id);
     }
 }

@@ -2,7 +2,9 @@ package com.example.apartmentmanagement.controller;
 
 import com.example.apartmentmanagement.dto.request.ApartmentRequest;
 import com.example.apartmentmanagement.dto.response.ApartmentResponse;
+import com.example.apartmentmanagement.dto.response.ResidentResponse;
 import com.example.apartmentmanagement.service.ApartmentService;
+import com.example.apartmentmanagement.service.ResidentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApartmentController {
     private final ApartmentService apartmentService;
+    private final ResidentService residentService;
 
     @PostMapping
     public ResponseEntity<ApartmentResponse> createApartment(@RequestBody ApartmentRequest request){
@@ -33,6 +36,11 @@ public class ApartmentController {
     @GetMapping("/{id}")
     public ResponseEntity<ApartmentResponse> getApartmentById(@PathVariable Long id){
         return ResponseEntity.ok(apartmentService.getApartmentById(id));
+    }
+
+    @GetMapping("/{id}/residents")
+    public ResponseEntity<List<ResidentResponse>> getResidentsByApartment(@PathVariable Long apartmentId){
+        return ResponseEntity.ok(residentService.getResidentsByApartment(apartmentId));
     }
 
     @DeleteMapping("/{id}")
