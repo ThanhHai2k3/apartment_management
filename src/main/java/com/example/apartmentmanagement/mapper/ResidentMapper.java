@@ -19,5 +19,6 @@ public interface ResidentMapper {
     ResidentResponse toResidentResponse(Resident resident);
 
     @Mapping(target = "apartment.id", source = "apartmentId")
+    @Mapping(target = "idNumber", ignore = true)
     void updateResident(@MappingTarget Resident resident, ResidentRequest request);
 }

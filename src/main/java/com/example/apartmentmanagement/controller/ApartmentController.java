@@ -38,7 +38,7 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentService.getApartmentById(id));
     }
 
-    @GetMapping("/{id}/residents")
+    @GetMapping("/{apartmentId}/residents")
     public ResponseEntity<List<ResidentResponse>> getResidentsByApartment(@PathVariable Long apartmentId){
         return ResponseEntity.ok(residentService.getResidentsByApartment(apartmentId));
     }

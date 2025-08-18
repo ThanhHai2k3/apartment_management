@@ -15,7 +15,8 @@ public enum ErrorCode {
     USERNAME_INVALID (1006, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID (1007, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
     APARTMENT_NOT_FOUND(1008, "Apartment not found", HttpStatus.NOT_FOUND),
-    RESIDENT_NOT_FOUND(1009, "Resident not found", HttpStatus.NOT_FOUND)
+    RESIDENT_NOT_FOUND(1009, "Resident not found", HttpStatus.NOT_FOUND),
+    ID_NUMBER_EXISTED(1010, "Identity number already existed", HttpStatus.CONFLICT)
     ;
 
     private final int code;

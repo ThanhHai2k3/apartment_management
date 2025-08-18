@@ -27,6 +27,9 @@ public class ResidentServiceImpl implements ResidentService {
     public ResidentResponse createResident (ResidentRequest request){
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
+        if (residentRepository.existsByIdNumber(request.getIdNumber())) {
+            throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
+        }
 
         Resident resident = residentMapper.toResident(request);
         //Gán lại apartment thật (đảm bảo không bị entity giả)
@@ -43,6 +46,13 @@ public class ResidentServiceImpl implements ResidentService {
 
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
+
+        if(resident.getIdNumber() != null && !request.getIdNumber().equals(resident.getIdNumber())){
+            if (residentRepository.existsByIdNumberAndIdNot(request.getIdNumber(), id)){
+                throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
+            }
+            resident.setIdNumber(request.getIdNumber());
+        }
 
         residentMapper.updateResident(resident, request);
         //Gán lại apartment thật (đảm bảo không bị entity giả)
@@ -78,6 +88,10 @@ public class ResidentServiceImpl implements ResidentService {
 
     @Override
     public List<ResidentResponse> getResidentsByApartment(Long apartmentId){
+        if (!apartmentRepository.existsById(apartmentId)) {
+            throw new AppException(ErrorCode.APARTMENT_NOT_FOUND);
+        }
+
         List<Resident> residents = residentRepository.findByApartmentId(apartmentId);
         return residents.stream()
                 .map(residentMapper::toResidentResponse)
