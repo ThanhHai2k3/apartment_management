@@ -1,10 +1,11 @@
 package com.example.apartmentmanagement.dto.response;
 
-import com.example.apartmentmanagement.entity.Apartment;
 import com.example.apartmentmanagement.enums.Gender;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,9 +19,7 @@ public class ResidentResponse {
     private String phoneNum;
     private Gender gender;
     private String idNumber;
-    private LocalDateTime dob;
-    private LocalDateTime moveInDate;
-    private LocalDateTime moveOutDate;
-    private Long apartmentId;
-    private String apartmentNumber;
+    private LocalDate dob;
+
+    private List<ResidentApartmentHistoryResponse> histories;
 }

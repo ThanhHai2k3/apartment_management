@@ -16,7 +16,9 @@ public enum ErrorCode {
     PASSWORD_INVALID (1007, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
     APARTMENT_NOT_FOUND(1008, "Apartment not found", HttpStatus.NOT_FOUND),
     RESIDENT_NOT_FOUND(1009, "Resident not found", HttpStatus.NOT_FOUND),
-    ID_NUMBER_EXISTED(1010, "Identity number already existed", HttpStatus.CONFLICT)
+    ID_NUMBER_EXISTED(1010, "Identity number already existed", HttpStatus.CONFLICT),
+    RESIDENT_NOT_IN_APARTMENT(1011, "Resident is not currently assigned to any apartment", HttpStatus.BAD_REQUEST),
+    HISTORY_NOT_FOUND(1012, "Active residency history not found", HttpStatus.NOT_FOUND),
     ;
 
     private final int code;

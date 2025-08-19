@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,13 +32,14 @@ public class Resident {
     @Column(unique = true)
     private String idNumber;
 
-    private LocalDateTime dob;
+    private LocalDate dob;
 
     @CreationTimestamp
-    private LocalDateTime moveInDate;
-    private LocalDateTime moveOutDate;
+    private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "apartment_id", referencedColumnName = "id", nullable = false)
-    private Apartment apartment;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResidentApartmentHistory> histories = new ArrayList<>();
 }

@@ -2,6 +2,8 @@ package com.example.apartmentmanagement.repository;
 
 import com.example.apartmentmanagement.entity.Resident;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,5 +13,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     boolean existsByEmail(String email);
     boolean existsByIdNumber(String idNumber);
     boolean existsByIdNumberAndIdNot(String idNumber, Long id);
-    List<Resident> findByApartmentId(Long apartmentId);
+
+    @Query("SELECT rah.resident FROM ResidentApartmentHistory rah " +
+            "WHERE rah.apartment.id = :apartmentId AND (rah.endDate IS NULL OR rah.endDate >= CURRENT_DATE)")
+    List<Resident> findCurrentResidentsByApartmentId(@Param("apartmentId") Long apartmentId);
 }

@@ -40,7 +40,7 @@ public class ApartmentController {
 
     @GetMapping("/{apartmentId}/residents")
     public ResponseEntity<List<ResidentResponse>> getResidentsByApartment(@PathVariable Long apartmentId){
-        return ResponseEntity.ok(residentService.getResidentsByApartment(apartmentId));
+        return ResponseEntity.ok(residentService.getCurrentResidentsByApartment(apartmentId));
     }
 
     @DeleteMapping("/{id}")
