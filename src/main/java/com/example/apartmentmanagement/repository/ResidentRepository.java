@@ -14,7 +14,11 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     boolean existsByIdNumber(String idNumber);
     boolean existsByIdNumberAndIdNot(String idNumber, Long id);
 
-    @Query("SELECT rah.resident FROM ResidentApartmentHistory rah " +
-            "WHERE rah.apartment.id = :apartmentId AND (rah.endDate IS NULL OR rah.endDate >= CURRENT_DATE)")
+    @Query("""
+        SELECT rah.resident 
+        FROM ResidentApartmentHistory rah 
+        WHERE rah.apartment.id = :apartmentId 
+        AND rah.endDate IS NULL
+    """)
     List<Resident> findCurrentResidentsByApartmentId(@Param("apartmentId") Long apartmentId);
 }
