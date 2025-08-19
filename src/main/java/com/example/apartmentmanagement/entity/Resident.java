@@ -42,4 +42,8 @@ public class Resident {
 
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResidentApartmentHistory> histories = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 }
