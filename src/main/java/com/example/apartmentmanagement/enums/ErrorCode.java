@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
     USER_NOT_FOUND(1001, "User not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXISTS(1002, "Username already taken", HttpStatus.CONFLICT),
+    USER_ALREADY_EXISTS(1002, "Username already existed", HttpStatus.CONFLICT),
     ROLE_NOT_FOUND(1003, "Role not found", HttpStatus.NOT_FOUND),
     INTERNAL_SERVER_ERROR(1004, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    ACCESS_DENIED(1005, "Access denied", HttpStatus.FORBIDDEN),
+    ACCESS_DENIED(1005, "User does not have permission to access this resource", HttpStatus.FORBIDDEN),
     INVALID_CREDENTIAL(1006, "Invalid username or password", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID (1007, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID (1008, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),

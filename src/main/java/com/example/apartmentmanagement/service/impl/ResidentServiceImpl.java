@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,25 +36,12 @@ public class ResidentServiceImpl implements ResidentService {
 
     @Override
     public ResidentResponse createResident (ResidentRequest request){
-//        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-//                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
         if (residentRepository.existsByIdNumber(request.getIdNumber())) {
             throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
         }
 
         Resident resident = residentMapper.toResident(request);
-        //Gán lại apartment thật (đảm bảo không bị entity giả)
-        //resident.setApartment(apartment);
-
         Resident savedResident = residentRepository.save(resident);
-
-        //Ghi lich su
-//        ResidentApartmentHistory history = new ResidentApartmentHistory();
-//        history.setResident(savedResident);
-//        history.setApartment(apartment);
-//        history.setStartDate(LocalDate.now());
-//
-//        historyRepository.save(history);
 
         return residentMapper.toResidentResponse(savedResident);
     }
@@ -63,9 +51,6 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-//        Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-//                .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
-
         if(resident.getIdNumber() != null && !request.getIdNumber().equals(resident.getIdNumber())){
             if (residentRepository.existsByIdNumberAndIdNot(request.getIdNumber(), id)){
                 throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
@@ -73,33 +58,7 @@ public class ResidentServiceImpl implements ResidentService {
             resident.setIdNumber(request.getIdNumber());
         }
 
-        //Long currentApartmentId = resident.getApartment() != null ? resident.getApartment().getId() : null;
-
         residentMapper.updateResident(resident, request);
-        //Gán lại apartment thật (đảm bảo không bị entity giả)
-        //resident.setApartment(apartment);
-
-        // Nếu apartment thay đổi
-//        if(!Objects.equals(currentApartmentId, apartment.getId())){
-//            // Kết thúc lịch sử hiện tại nếu có
-//            historyRepository.findByResidentIdAndEndDateIsNull(id).ifPresent(h -> {
-//                h.setEndDate(LocalDate.now());
-//                historyRepository.save(h);
-//            });
-//
-//            // Cập nhật resident → căn hộ mới
-//            resident.setApartment(apartment);
-//            resident.setMoveInDate(LocalDateTime.now());
-//            resident.setMoveOutDate(null);
-//
-//            // Tạo lịch sử mới
-//            ResidentApartmentHistory newHist = new ResidentApartmentHistory();
-//            newHist.setResident(resident);
-//            newHist.setApartment(apartment);
-//            newHist.setStartDate(LocalDate.now());
-//
-//            historyRepository.save(newHist);
-//        }
         Resident updatedResident = residentRepository.save(resident);
 
         return residentMapper.toResidentResponse(updatedResident);
@@ -133,14 +92,13 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(residentId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-//        if (resident.getApartment() == null){
-//            throw new AppException(ErrorCode.RESIDENT_NOT_IN_APARTMENT);
-//        }
+        Optional<ResidentApartmentHistory> activeHistory = historyRepository.findByResidentIdAndEndDateIsNull(residentId);
+        if (activeHistory.isEmpty()) {
+            throw new AppException(ErrorCode.RESIDENT_NOT_IN_APARTMENT);
+        }
 
         // Kết thúc lịch sử active
-        ResidentApartmentHistory active = historyRepository.findByResidentIdAndEndDateIsNull(residentId)
-                .orElseThrow(() -> new AppException(ErrorCode.HISTORY_NOT_FOUND));
-
+        ResidentApartmentHistory active = activeHistory.get();
         active.setEndDate(LocalDate.now());
         historyRepository.save(active);
     }

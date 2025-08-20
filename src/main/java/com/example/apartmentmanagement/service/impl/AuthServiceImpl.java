@@ -40,6 +40,11 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
+        if (residentRepository.existsByIdNumber(request.getIdNumber()) ||
+                employeeRepository.existsByIdNumber(request.getIdNumber())) {
+            throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
+        }
+
         //Lấy role từ request
         Role role = roleRepository.findByName(request.getRole())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
@@ -51,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        if(request.getRole() == RoleName.ROLE_RESIDENT){
+        if(request.getRole().equals(RoleName.ROLE_RESIDENT)){
             Resident resident = new Resident();
             resident.setFullName(request.getFullName());
             resident.setEmail(request.getEmail());
@@ -61,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
             resident.setDob(request.getDob());
             resident.setUser(user);
             residentRepository.save(resident);
-        } else if (request.getRole() == RoleName.ROLE_EMPLOYEE) {
+        } else if (request.getRole().equals(RoleName.ROLE_EMPLOYEE)) {
             if(request.getLevelId() == null){
                 throw new AppException(ErrorCode.INVALID_LEVEL_REQUEST);
             }
