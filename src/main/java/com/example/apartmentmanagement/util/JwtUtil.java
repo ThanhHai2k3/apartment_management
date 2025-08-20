@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,11 +16,9 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(String username, Set<Role> roles) {
-        List<String> roleNames = roles.stream()
-                .map(role -> role.getName() != null ? role.getName().toString() : null)
-                .filter(name -> name != null)
-                .collect(Collectors.toList());
+    public String generateToken(String username, Role role) {
+        String roleName = role.getName() != null ? role.getName().toString() : null;
+        List<String> roleNames = (roleName != null) ? Collections.singletonList(roleName) : Collections.emptyList();
 
         return Jwts.builder()
                 .setSubject(username)
