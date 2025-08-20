@@ -19,6 +19,8 @@ public interface ResidentApartmentHistoryRepository extends JpaRepository<Reside
     // Toàn bộ lịch sử của 1 cư dân (mới nhất trước)
     List<ResidentApartmentHistory> findByResidentIdOrderByStartDateDesc(Long residentId);
 
+    boolean existsByResidentIdAndApartmentIdAndEndDateIsNull(Long residentId, Long apartmentId);
+
     @Query("""
         SELECT CASE WHEN COUNT(h1) > 0 THEN TRUE ELSE FALSE END
         FROM ResidentApartmentHistory h1

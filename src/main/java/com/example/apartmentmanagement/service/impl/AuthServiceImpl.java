@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,14 +87,25 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIAL));
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.INVALID_CREDENTIAL);
         }
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        // Xây dựng danh sách authorities đầy đủ
+        List<String> authorities = new ArrayList<>();
+        authorities.add(user.getRole().getName().name()); // Thêm role
 
-        List<String> roles = List.of(user.getRole().getName().name());
+        // Nếu là EMPLOYEE, thêm authority cấp độ
+        if (user.getRole().getName() == RoleName.ROLE_EMPLOYEE && user.getEmployee() != null) {
+            Level level = user.getEmployee().getLevel();
+            if (level != null) {
+                String levelName = level.getName().trim().toUpperCase();
+                authorities.add("LEVEL_" + levelName); // Thêm LEVEL_MANAGER, LEVEL_STAFF...
+            }
+        }
 
-        return new JwtResponse(token, user.getUsername(), roles);
+        String token = jwtUtil.generateToken(user.getUsername(), authorities);
+
+        return new JwtResponse(token, user.getUsername(), authorities);
     }
 }

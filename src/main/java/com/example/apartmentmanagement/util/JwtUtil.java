@@ -16,15 +16,12 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(String username, Role role) {
-        String roleName = role.getName() != null ? role.getName().toString() : null;
-        List<String> roleNames = (roleName != null) ? Collections.singletonList(roleName) : Collections.emptyList();
-
+    public String generateToken(String username, List<String> authorities) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roleNames)
+                .claim("roles", authorities) // Lưu tất cả authorities vào claim "roles"
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 giờ
                 .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
@@ -36,11 +33,11 @@ public class JwtUtil {
     public List<SimpleGrantedAuthority> getAuthorities(String token) {
         Claims claims = extractAllClaims(token);
         @SuppressWarnings("unchecked")
-        List<String> roleNames = (List<String>) claims.get("roles");
+        List<String> roleNames = (List<String>) claims.get("roles", List.class); // Xử lý trường hợp null
 
-        return roleNames.stream()
+        return roleNames != null ? roleNames.stream()
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : Collections.emptyList();
     }
 
     private Claims extractAllClaims(String token) {

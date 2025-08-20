@@ -15,5 +15,5 @@ public class JwtResponse {
     @JsonProperty("username")
     private String username;
     @JsonProperty("roles")
-    private List<String> roles;
+    private List<String> authorities;
 }
