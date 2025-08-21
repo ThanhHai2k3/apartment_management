@@ -1,6 +1,7 @@
 package com.example.apartmentmanagement.controller;
 
 import com.example.apartmentmanagement.dto.request.EmployeeRequest;
+import com.example.apartmentmanagement.dto.request.EmployeeSelfUpdateRequest;
 import com.example.apartmentmanagement.dto.response.EmployeeResponse;
 import com.example.apartmentmanagement.dto.response.EmployeeSummaryResponse;
 import com.example.apartmentmanagement.service.EmployeeService;
@@ -36,10 +37,16 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.employeeId")
-    @PutMapping("/{id}")
-    public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable Long id, @RequestBody EmployeeRequest request){
-        return ResponseEntity.ok(employeeService.updateEmployee(id, request));
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<EmployeeResponse> updateEmployeeByAdmin(@PathVariable Long id, @RequestBody EmployeeRequest request) {
+        return ResponseEntity.ok(employeeService.updateEmployeeByAdmin(id, request));
+    }
+
+    @PreAuthorize("#id == authentication.principal.employeeId")
+    @PutMapping("/self/{id}")
+    public ResponseEntity<EmployeeResponse> updateEmployeeSelf(@PathVariable Long id, @RequestBody EmployeeSelfUpdateRequest request) {
+        return ResponseEntity.ok(employeeService.updateEmployeeSelf(id, request));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

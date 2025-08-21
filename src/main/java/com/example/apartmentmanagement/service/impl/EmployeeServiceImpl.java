@@ -1,6 +1,7 @@
 package com.example.apartmentmanagement.service.impl;
 
 import com.example.apartmentmanagement.dto.request.EmployeeRequest;
+import com.example.apartmentmanagement.dto.request.EmployeeSelfUpdateRequest;
 import com.example.apartmentmanagement.dto.response.EmployeeResponse;
 import com.example.apartmentmanagement.dto.response.EmployeeSummaryResponse;
 import com.example.apartmentmanagement.entity.Employee;
@@ -66,17 +67,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public EmployeeResponse updateEmployee(Long id, EmployeeRequest request){
+    public EmployeeResponse updateEmployeeByAdmin(Long id, EmployeeRequest request) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.EMPLOYEE_NOT_FOUND));
 
-        // Lấy thông tin user hiện tại từ SecurityContext
+        // Kiểm tra quyền ADMIN
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAdmin = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        boolean isSelf = auth.getPrincipal() instanceof UserDetailsImpl userDetails &&
-                userDetails.getEmployeeId() != null && userDetails.getEmployeeId().equals(id);
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            throw new AppException(ErrorCode.EMPLOYEE_ACCESS_DENIED);
+        }
 
-        if(request.getIdNumber() != null){
+        if (request.getIdNumber() != null) {
             if (!request.getIdNumber().equals(employee.getIdNumber()) &&
                     (employeeRepository.existsByIdNumber(request.getIdNumber()) ||
                             residentRepository.existsByIdNumber(request.getIdNumber()))) {
@@ -87,37 +88,57 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employeeMapper.updateEntityFromRequest(employee, request);
 
-        if(isAdmin){
-            if (request.getLevelId() != null) {
-                Level level = levelRepository.findById(request.getLevelId())
-                        .orElseThrow(() -> new AppException(ErrorCode.LEVEL_NOT_FOUND));
-                employee.setLevel(level);
-            }
-
-            if (request.getUserId() != null) {
-                User user = userRepository.findById(request.getUserId())
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-                if (!employee.getUser().getId().equals(request.getUserId())) {
-                    if (employeeRepository.existsByUserIdAndIdNot(request.getUserId(), id)) {
-                        throw new AppException(ErrorCode.USER_ALREADY_LINKED);
-                    }
-                    if (residentRepository.existsByUserId(request.getUserId())) {
-                        throw new AppException(ErrorCode.USER_ALREADY_LINKED);
-                    }
-                    if (user.getRole().getName().equals(RoleName.ROLE_ADMIN)) {
-                        throw new AppException(ErrorCode.USER_ROLE_ADMIN_NOT_ALLOWED);
-                    }
-                }
-                employee.setUser(user);
-            }
+        if (request.getLevelId() != null) {
+            Level level = levelRepository.findById(request.getLevelId())
+                    .orElseThrow(() -> new AppException(ErrorCode.LEVEL_NOT_FOUND));
+            employee.setLevel(level);
         }
-        else if (isSelf && (request.getLevelId() != null || request.getUserId() != null)){
-            throw new AppException(ErrorCode.EMPLOYEE_ACCESS_DENIED);
+        if (request.getUserId() != null) {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            if (!employee.getUser().getId().equals(request.getUserId())) {
+                if (employeeRepository.existsByUserIdAndIdNot(request.getUserId(), id)) {
+                    throw new AppException(ErrorCode.USER_ALREADY_LINKED);
+                }
+                if (residentRepository.existsByUserId(request.getUserId())) {
+                    throw new AppException(ErrorCode.USER_ALREADY_LINKED);
+                }
+                if (user.getRole().getName() == RoleName.ROLE_ADMIN) {
+                    throw new AppException(ErrorCode.USER_ROLE_ADMIN_NOT_ALLOWED);
+                }
+            }
+            employee.setUser(user);
         }
 
         employeeRepository.save(employee);
+        return employeeMapper.toResponse(employee);
+    }
 
+    @Transactional
+    @Override
+    public EmployeeResponse updateEmployeeSelf(Long id, EmployeeSelfUpdateRequest request) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.EMPLOYEE_NOT_FOUND));
+
+        // Kiểm tra người dùng là chính nhân viên
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isSelf = auth.getPrincipal() instanceof UserDetailsImpl userDetails &&
+                userDetails.getEmployeeId() != null && userDetails.getEmployeeId().equals(id);
+        if (!isSelf) {
+            throw new AppException(ErrorCode.EMPLOYEE_ACCESS_DENIED);
+        }
+
+        if (request.getIdNumber() != null) {
+            if (!request.getIdNumber().equals(employee.getIdNumber()) &&
+                    (employeeRepository.existsByIdNumber(request.getIdNumber()) ||
+                            residentRepository.existsByIdNumber(request.getIdNumber()))) {
+                throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
+            }
+            employee.setIdNumber(request.getIdNumber());
+        }
+
+        employeeMapper.updateEntityFromSelfRequest(employee, request);
+        employeeRepository.save(employee);
         return employeeMapper.toResponse(employee);
     }
 

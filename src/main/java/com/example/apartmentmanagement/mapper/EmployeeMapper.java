@@ -1,6 +1,7 @@
 package com.example.apartmentmanagement.mapper;
 
 import com.example.apartmentmanagement.dto.request.EmployeeRequest;
+import com.example.apartmentmanagement.dto.request.EmployeeSelfUpdateRequest;
 import com.example.apartmentmanagement.dto.response.EmployeeResponse;
 import com.example.apartmentmanagement.dto.response.EmployeeSummaryResponse;
 import com.example.apartmentmanagement.entity.Employee;
@@ -33,4 +34,9 @@ public interface EmployeeMapper {
     @Mapping(target = "level", ignore = true)
     @Mapping(target = "user", ignore = true)
     void updateEntityFromRequest(@MappingTarget Employee employee, EmployeeRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "level", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    void updateEntityFromSelfRequest(@MappingTarget Employee employee, EmployeeSelfUpdateRequest request);
 }
