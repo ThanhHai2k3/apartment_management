@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface FeeTypeRepository extends JpaRepository<FeeType, Long> {
     Optional<FeeType> findByName(String name);
+    boolean existsByName(String name);
 }

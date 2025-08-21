@@ -27,6 +27,9 @@ public enum ErrorCode {
     EMPLOYEE_ACCESS_DENIED(1018, "Employees cannot update their level or user ID", HttpStatus.FORBIDDEN),
     USER_ALREADY_LINKED(1019, "User ID is already linked to another employee or resident", HttpStatus.BAD_REQUEST),
     USER_ROLE_ADMIN_NOT_ALLOWED(1020    , "Cannot assign user with role admin", HttpStatus.BAD_REQUEST),
+    FEE_TYPE_NOT_FOUND(1021, "FeeType not found", HttpStatus.NOT_FOUND),
+    FEE_TYPE_ALREADY_EXISTS(1022, "FeeType already existed", HttpStatus.CONFLICT),
+    BILL_NOT_FOUND(1023, "Bill not found", HttpStatus.NOT_FOUND),
     ;
 
     private final int code;
