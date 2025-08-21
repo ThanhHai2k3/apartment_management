@@ -12,7 +12,7 @@ import java.util.List;
 public interface ResidentRepository extends JpaRepository<Resident, Long> {
     boolean existsByEmail(String email);
     boolean existsByIdNumber(String idNumber);
-    boolean existsByIdNumberAndIdNot(String idNumber, Long id);
+    boolean existsByUserId(Long userId);
 
     @Query("""
         SELECT rah.resident 

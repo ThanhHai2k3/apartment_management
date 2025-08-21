@@ -12,6 +12,7 @@ import com.example.apartmentmanagement.exception.AppException;
 import com.example.apartmentmanagement.mapper.ResidentApartmentHistoryMapper;
 import com.example.apartmentmanagement.mapper.ResidentMapper;
 import com.example.apartmentmanagement.repository.ApartmentRepository;
+import com.example.apartmentmanagement.repository.EmployeeRepository;
 import com.example.apartmentmanagement.repository.ResidentApartmentHistoryRepository;
 import com.example.apartmentmanagement.repository.ResidentRepository;
 import com.example.apartmentmanagement.service.ResidentService;
@@ -33,6 +34,7 @@ public class ResidentServiceImpl implements ResidentService {
     private final ResidentMapper residentMapper;
     private final ResidentApartmentHistoryRepository historyRepository;
     private final ResidentApartmentHistoryMapper historyMapper;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public ResidentResponse createResident (ResidentRequest request){
@@ -51,8 +53,10 @@ public class ResidentServiceImpl implements ResidentService {
         Resident resident = residentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESIDENT_NOT_FOUND));
 
-        if(resident.getIdNumber() != null && !request.getIdNumber().equals(resident.getIdNumber())){
-            if (residentRepository.existsByIdNumberAndIdNot(request.getIdNumber(), id)){
+        if (request.getIdNumber() != null) {
+            if (!request.getIdNumber().equals(resident.getIdNumber()) &&
+                    (residentRepository.existsByIdNumber(request.getIdNumber()) ||
+                            employeeRepository.existsByIdNumber(request.getIdNumber()))) {
                 throw new AppException(ErrorCode.ID_NUMBER_EXISTED);
             }
             resident.setIdNumber(request.getIdNumber());

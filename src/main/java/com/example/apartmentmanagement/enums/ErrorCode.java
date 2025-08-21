@@ -23,6 +23,10 @@ public enum ErrorCode {
     INVALID_REQUEST(1014, "Invalid request data", HttpStatus.BAD_REQUEST),
     INVALID_LEVEL_REQUEST(1015, "Level must be provided for Employee", HttpStatus.BAD_REQUEST),
     LEVEL_NOT_FOUND(1016, "Level not found", HttpStatus.NOT_FOUND),
+    EMPLOYEE_NOT_FOUND(1017, "Employee not found", HttpStatus.NOT_FOUND),
+    EMPLOYEE_ACCESS_DENIED(1018, "Employees cannot update their level or user ID", HttpStatus.FORBIDDEN),
+    USER_ALREADY_LINKED(1019, "User ID is already linked to another employee or resident", HttpStatus.BAD_REQUEST),
+    USER_ROLE_ADMIN_NOT_ALLOWED(1020    , "Cannot assign user with role admin", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

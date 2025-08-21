@@ -78,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
             employee.setEmail(request.getEmail());
             employee.setPhoneNum(request.getPhoneNum());
             employee.setIdNumber(request.getIdNumber());
-            employee.setPosition(request.getPosition());
+            //employee.setPosition(request.getPosition());
             employee.setGender(request.getGender());
             employee.setDob(request.getDob());
             employee.setLevel(level);

@@ -38,8 +38,6 @@ public class Employee {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private String position;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "level_id", nullable = false)
     private Level level;
