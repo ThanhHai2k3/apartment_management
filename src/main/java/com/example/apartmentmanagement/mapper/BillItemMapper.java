@@ -34,4 +34,8 @@ public interface BillItemMapper {
         feeType.setId(feeTypeId);
         return feeType;
     }
+
+    default String mapFeeTypeName(FeeType feeType) {
+        return feeType != null ? feeType.getName() : null;
+    }
 }

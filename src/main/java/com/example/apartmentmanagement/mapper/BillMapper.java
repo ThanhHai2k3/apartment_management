@@ -11,7 +11,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {BillItemMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BillMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -25,6 +25,7 @@ public interface BillMapper {
 
     @Mapping(target = "apartmentId", source = "apartment.id")
     @Mapping(target = "apartmentNumber", source = "apartment.number")
+    @Mapping(target = "items", source = "items")
     BillResponse toBillResponse(Bill bill);
 
     List<BillResponse> toBillResponseList(List<Bill> bills);

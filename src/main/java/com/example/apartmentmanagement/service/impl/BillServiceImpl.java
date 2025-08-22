@@ -15,10 +15,12 @@ import com.example.apartmentmanagement.mapper.BillItemMapper;
 import com.example.apartmentmanagement.mapper.BillMapper;
 import com.example.apartmentmanagement.repository.*;
 import com.example.apartmentmanagement.service.BillService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +34,8 @@ public class BillServiceImpl implements BillService {
     private final BillItemMapper billItemMapper;
 
     @Override
-    public BillResponse createBill(CreateBillRequest request){
+    @Transactional
+    public BillResponse createBill(CreateBillRequest request) {
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.APARTMENT_NOT_FOUND));
 
@@ -40,13 +43,15 @@ public class BillServiceImpl implements BillService {
         bill.setApartment(apartment);
         billRepository.save(bill);
 
-        List<BillItem> items =  request.getItems().stream()
+        // Xử lý danh sách BillItem
+        List<BillItem> items = request.getItems().stream()
                 .map(billItemRequest -> {
                     FeeType feeType = feeTypeRepository.findById(billItemRequest.getFeeTypeId())
                             .orElseThrow(() -> new AppException(ErrorCode.FEE_TYPE_NOT_FOUND));
 
                     BillItem item = billItemMapper.toBillItem(billItemRequest);
                     item.setBill(bill);
+                    item.setFeeType(feeType);
 
                     double amount = feeType.getMetered().equals(FeeTypeMode.METERED)
                             ? feeType.getUnitPrice() * billItemRequest.getQuantity()
@@ -55,34 +60,50 @@ public class BillServiceImpl implements BillService {
                     item.setAmount(amount);
                     return item;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         double totalAmount = items.stream()
                 .mapToDouble(BillItem::getAmount)
                 .sum();
 
-        bill.setItems(items);
+        // Không dùng setItems, mà clear + addAll để tránh lỗi orphanRemoval
+        bill.getItems().clear();
+        bill.getItems().addAll(items);
+
         bill.setTotalAmount(totalAmount);
+
         Bill savedBill = billRepository.save(bill);
         return billMapper.toBillResponse(savedBill);
     }
 
+
     @Override
-    public BillResponse updateBill(Long billId, UpdateBillRequest request){
+    public BillResponse updateBill(Long billId, UpdateBillRequest request) {
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new AppException(ErrorCode.BILL_NOT_FOUND));
 
-        if (request.getPaymentDate() != null){
+        if (request.getPaymentDate() != null) {
             bill.setPaymentDate(request.getPaymentDate());
-            bill.setStatus(request.getStatus() != null ? request.getStatus() : BillStatus.PAID);
+            if (request.getStatus() != null) {
+                bill.setStatus(request.getStatus());
+            } else {
+                if (request.getPaymentDate().isAfter(bill.getDueDate())) {
+                    bill.setStatus(BillStatus.OVERDUE);
+                } else {
+                    bill.setStatus(BillStatus.PAID);
+                }
+            }
+        } else {
+            // Không có paymentDate
+            if (request.getStatus() != null) {
+                bill.setStatus(request.getStatus());
+            }
         }
-//        if (request.getStatus() != null) {
-//            bill.setStatus(request.getStatus());
-//        }
 
         Bill updatedBill = billRepository.save(bill);
         return billMapper.toBillResponse(updatedBill);
     }
+
 
     @Override
     public BillResponse getBillById(Long id) {
