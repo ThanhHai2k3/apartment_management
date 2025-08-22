@@ -9,6 +9,7 @@ import com.example.apartmentmanagement.entity.BillItem;
 import com.example.apartmentmanagement.entity.FeeType;
 import com.example.apartmentmanagement.enums.BillStatus;
 import com.example.apartmentmanagement.enums.ErrorCode;
+import com.example.apartmentmanagement.enums.FeeTypeMode;
 import com.example.apartmentmanagement.exception.AppException;
 import com.example.apartmentmanagement.mapper.BillItemMapper;
 import com.example.apartmentmanagement.mapper.BillMapper;
@@ -47,7 +48,7 @@ public class BillServiceImpl implements BillService {
                     BillItem item = billItemMapper.toBillItem(billItemRequest);
                     item.setBill(bill);
 
-                    double amount = feeType.isMetered()
+                    double amount = feeType.getMetered().equals(FeeTypeMode.METERED)
                             ? feeType.getUnitPrice() * billItemRequest.getQuantity()
                             : feeType.getUnitPrice();
 

@@ -21,6 +21,10 @@ public class FeeTypeServiceImpl implements FeeTypeService {
 
     @Override
     public FeeTypeResponse createFeeType(FeeTypeRequest request) {
+        if (request.getMetered() == null) {
+            throw new AppException(ErrorCode.INVALID_METERED_VALUE);
+        }
+
         if (feeTypeRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.FEE_TYPE_ALREADY_EXISTS);
         }
@@ -33,6 +37,10 @@ public class FeeTypeServiceImpl implements FeeTypeService {
         FeeType feeType = feeTypeRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.FEE_TYPE_NOT_FOUND));
 
+        if (request.getMetered() == null) {
+            throw new AppException(ErrorCode.INVALID_METERED_VALUE);
+        }
+
         if (!feeType.getName().equals(request.getName())
                 && feeTypeRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.FEE_TYPE_ALREADY_EXISTS);
@@ -40,7 +48,7 @@ public class FeeTypeServiceImpl implements FeeTypeService {
 
         feeType.setName(request.getName());
         feeType.setUnitPrice(request.getUnitPrice());
-        feeType.setMetered(request.isMetered());
+        feeType.setMetered(request.getMetered());
 
         return feeTypeMapper.toResponse(feeTypeRepository.save(feeType));
     }

@@ -1,10 +1,12 @@
 package com.example.apartmentmanagement.entity;
 
+import com.example.apartmentmanagement.enums.FeeTypeMode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -25,7 +27,10 @@ public class FeeType {
     private String name;
 
     private double unitPrice;
-    private boolean isMetered; //True nếu tính theo đồng hồ
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FeeTypeMode metered;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

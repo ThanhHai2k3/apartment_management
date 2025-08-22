@@ -30,6 +30,7 @@ public enum ErrorCode {
     FEE_TYPE_NOT_FOUND(1021, "FeeType not found", HttpStatus.NOT_FOUND),
     FEE_TYPE_ALREADY_EXISTS(1022, "FeeType already existed", HttpStatus.CONFLICT),
     BILL_NOT_FOUND(1023, "Bill not found", HttpStatus.NOT_FOUND),
+    INVALID_METERED_VALUE(1024, "Invalid metered value", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
